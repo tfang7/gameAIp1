@@ -10,7 +10,7 @@ public class BoardGenerator : MonoBehaviour {
     public GameObject path, tree, obstacle;
     public GameObject chunkPrefab;
     public Tile[,] board;
-    public List<Tile> walkable;
+    public List<chunk> walkable;
     public GameObject obstacles;
     public GameObject center;
     public string type;
@@ -66,7 +66,6 @@ public class BoardGenerator : MonoBehaviour {
                 {
                     setParentChunk(x, y, par.transform);
                     chunk.Add(board[x, y]);
-
                 }
                 if (board[x + 1, y].state == Tile.State.PATH)
                 {
@@ -84,7 +83,6 @@ public class BoardGenerator : MonoBehaviour {
                     chunk.Add(board[x + 1, y + 1]);
                 }
                 if (par.transform.childCount == 0) Destroy(par);
-                else drawCenter(par.transform);
 
             }
         }
@@ -100,17 +98,6 @@ public class BoardGenerator : MonoBehaviour {
                 }
         }
     }
-    void drawCenter(Transform par)
-    {
-        Vector3 positions = Vector3.zero;
-        foreach (Tile t in par.GetComponentsInChildren<Tile>())
-        {
-            positions += new Vector3(t.pos.x, t.pos.y, 0f);
-        }
-        GameObject c = Instantiate(center);
-        c.transform.position = positions / par.transform.childCount;
-
-    }
     void parseFile()
     {
         List<string[]> fileText = new List<string[]>();
@@ -119,7 +106,6 @@ public class BoardGenerator : MonoBehaviour {
         // fileText.Reverse();
         foreach (string[] line in fileText)
         {
-            Debug.Log(line);
             if (lineCount == 0)
             {
                 type = line[1];
@@ -166,7 +152,6 @@ public class BoardGenerator : MonoBehaviour {
                                 boardTile.col = colNum;
                                 boardTile.transform.parent = transform;
                                 board[rowNum, colNum] = boardTile;
-                                walkable.Add(boardTile);
                             }
                             if (c == 'T')
                             {
@@ -180,7 +165,6 @@ public class BoardGenerator : MonoBehaviour {
                             colNum += 1;
                             if (colNum > height) break;
                         }
-                        //  Debug.Log(lineCount);
                     }
                 }
             }
