@@ -61,26 +61,27 @@ public class BoardGenerator : MonoBehaviour {
             for (int y = 0; y < height-1; y+=2)
             {
                 par = (GameObject)Instantiate(chunkPrefab);
-                chunk = new List<Tile>();
+                chunk c = par.GetComponent<chunk>();
+                c.tile = new Tile[4];
                 if (board[x,y].state == Tile.State.PATH)
                 {
                     setParentChunk(x, y, par.transform);
-                    chunk.Add(board[x, y]);
+                    c.tile[0] = board[x, y];
                 }
                 if (board[x + 1, y].state == Tile.State.PATH)
                 {
                     setParentChunk(x + 1, y, par.transform);
-                    chunk.Add(board[x + 1, y]);
+                    c.tile[1] = board[x, y];
                 }
                 if (board[x, y + 1].state == Tile.State.PATH)
                 {
                     setParentChunk(x, y + 1, par.transform);
-                    chunk.Add(board[x, y + 1]);
+                    c.tile[2] = board[x, y];
                 }
                 if (board[x + 1, y + 1].state == Tile.State.PATH)
                 {
                     setParentChunk(x + 1, y + 1, par.transform);
-                    chunk.Add(board[x + 1, y + 1]);
+                    c.tile[3] = board[x, y];
                 }
                 if (par.transform.childCount == 0) Destroy(par);
 
@@ -132,22 +133,22 @@ public class BoardGenerator : MonoBehaviour {
                     {
                         //Debug.Log(i);
                         colNum = 0;
+                        Tile boardTile;
                         foreach (char c in i)
                         {
                             if (c == '@')
                             {
                                 GameObject t = Instantiate(obstacle);
-                                Tile boardTile = t.GetComponent<Tile>();
+                                boardTile = t.GetComponent<Tile>();
                                 boardTile.row = rowNum;
                                 boardTile.col = colNum;
                                 boardTile.transform.parent = obstacles.transform;
                                 board[rowNum, colNum] = boardTile;
-
                             }
                             if (c == '.')
                             {
                                 GameObject t = Instantiate(path);
-                                Tile boardTile = t.GetComponent<Tile>();
+                                boardTile = t.GetComponent<Tile>();
                                 boardTile.row = rowNum;
                                 boardTile.col = colNum;
                                 boardTile.transform.parent = transform;
@@ -156,12 +157,14 @@ public class BoardGenerator : MonoBehaviour {
                             if (c == 'T')
                             {
                                 GameObject t = Instantiate(tree);
-                                Tile boardTile = t.GetComponent<Tile>();
+                                boardTile = t.GetComponent<Tile>();
                                 boardTile.row = rowNum;
                                 boardTile.col = colNum;
                                 boardTile.transform.parent = obstacles.transform;
                                 board[rowNum, colNum] = boardTile;
+                                
                             }
+
                             colNum += 1;
                             if (colNum > height) break;
                         }

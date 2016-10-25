@@ -5,6 +5,8 @@ public class chunk : MonoBehaviour {
     public Vector2 centerPos;
     public GameObject center;
     public List<Tile> children;
+    public Tile[] tile = new Tile[4];
+
     public BoardGenerator board;
     public float weight;
     // Use this for initialization
@@ -23,7 +25,6 @@ public class chunk : MonoBehaviour {
         Vector3 positions = Vector3.zero;
         foreach (Tile t in tiles)
         {
-            Debug.Log(t.gameObject.transform.position);
             positions += new Vector3(t.gameObject.transform.position.x, t.gameObject.transform.position.y, 0f);
         }
         GameObject c = Instantiate(center);
