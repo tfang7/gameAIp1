@@ -56,9 +56,9 @@ public class BoardGenerator : MonoBehaviour {
     {
         GameObject par;
         List<Tile> chunk = new List<Tile>();
-        for (int x = 0; x < width-1; x+=2)
+        for (int x = 0; x < height-1; x+=2)
         {
-            for (int y = 0; y < height-1; y+=2)
+            for (int y = 0; y < width-1; y+=2)
             {
                 par = (GameObject)Instantiate(chunkPrefab);
                 chunk c = par.GetComponent<chunk>();
@@ -113,11 +113,11 @@ public class BoardGenerator : MonoBehaviour {
             }
             if (lineCount == 1)
             {
-                width = int.Parse(line[1]);
+                height = int.Parse(line[1]);
             }
             if (lineCount == 2)
             {
-                height = int.Parse(line[1]);
+                width = int.Parse(line[1]);
             }
             if (lineCount == 3)
             {
@@ -126,7 +126,7 @@ public class BoardGenerator : MonoBehaviour {
             {
                 if (lineCount > 3)
                 {
-                    if (board == null) board = new Tile[width, height];
+                    if (board == null) board = new Tile[height, width];
                     int rowNum = lineCount - 4;
                     int colNum = 0;
                     foreach (string i in line)
@@ -166,7 +166,7 @@ public class BoardGenerator : MonoBehaviour {
                             }
 
                             colNum += 1;
-                            if (colNum > height) break;
+                            if (colNum > width) break;
                         }
                     }
                 }
