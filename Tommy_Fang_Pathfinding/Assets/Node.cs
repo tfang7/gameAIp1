@@ -1,11 +1,14 @@
 ﻿using UnityEngine;
 using System.Collections;
 using System.Collections.Generic;
-public class chunk : MonoBehaviour {
-    public Vector2 centerPos;
+public class Node : MonoBehaviour {
+    public Vector3 pos;
     public GameObject center;
     public List<Tile> children;
     public Tile[] tile = new Tile[4];
+    public float heuristic;
+    public float cost;
+    public float costFromStart;
 
     public BoardGenerator board;
     public float weight;
@@ -13,6 +16,7 @@ public class chunk : MonoBehaviour {
     void Start () {
         weight = 0f;
         board = GameObject.FindGameObjectWithTag("board").GetComponent<BoardGenerator>();
+        transform.name = board.walkable.Count.ToString();
         Tile[] tiles = GetComponentsInChildren<Tile>();
         if (transform.childCount > 0)
         {
@@ -30,7 +34,8 @@ public class chunk : MonoBehaviour {
         GameObject c = Instantiate(center);
         Vector2 actualCenter = (positions / transform.childCount);
         c.transform.parent = transform;
-        c.transform.position = new Vector3(actualCenter.x, actualCenter.y, -1f);
+        pos = new Vector3(actualCenter.x, actualCenter.y, -1f);
+        c.transform.position = pos;
         board.walkable.Add(this);
 
     }
@@ -38,4 +43,10 @@ public class chunk : MonoBehaviour {
     void Update () {
 	
 	}
+    public void setCost(float distFromStart, float euclideanCost)
+    {
+        costFromStart = distFromStart;
+        heuristic = euclideanCost;
+        cost = costFromStart + heuristic;
+    }
 }

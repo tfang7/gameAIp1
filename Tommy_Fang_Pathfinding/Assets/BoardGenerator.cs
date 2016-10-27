@@ -8,9 +8,9 @@ public class BoardGenerator : MonoBehaviour {
     public int xUnit, yUnit;
     public int width, height;
     public GameObject path, tree, obstacle;
-    public GameObject chunkPrefab;
+    public GameObject NodePrefab;
     public Tile[,] board;
-    public List<chunk> walkable;
+    public List<Node> walkable;
     public GameObject obstacles;
     public GameObject center;
     public string type;
@@ -55,40 +55,39 @@ public class BoardGenerator : MonoBehaviour {
     void Tileizer()
     {
         GameObject par;
-        List<Tile> chunk = new List<Tile>();
         for (int x = 0; x < height-1; x+=2)
         {
             for (int y = 0; y < width-1; y+=2)
             {
-                par = (GameObject)Instantiate(chunkPrefab);
-                chunk c = par.GetComponent<chunk>();
+                par = (GameObject)Instantiate(NodePrefab);
+                Node c = par.GetComponent<Node>();
                 c.tile = new Tile[4];
                 if (board[x,y].state == Tile.State.PATH)
                 {
-                    setParentChunk(x, y, par.transform);
+                    setParentNode(x, y, par.transform);
                     c.tile[0] = board[x, y];
                 }
                 if (board[x + 1, y].state == Tile.State.PATH)
                 {
-                    setParentChunk(x + 1, y, par.transform);
-                    c.tile[1] = board[x, y];
+                    setParentNode(x + 1, y, par.transform);
+                    c.tile[1] = board[x+1, y];
                 }
                 if (board[x, y + 1].state == Tile.State.PATH)
                 {
-                    setParentChunk(x, y + 1, par.transform);
-                    c.tile[2] = board[x, y];
+                    setParentNode(x, y + 1, par.transform);
+                    c.tile[2] = board[x, y+1];
                 }
                 if (board[x + 1, y + 1].state == Tile.State.PATH)
                 {
-                    setParentChunk(x + 1, y + 1, par.transform);
-                    c.tile[3] = board[x, y];
+                    setParentNode(x + 1, y + 1, par.transform);
+                    c.tile[3] = board[x+1, y+1];
                 }
                 if (par.transform.childCount == 0) Destroy(par);
 
             }
         }
     }
-    void setParentChunk(int x, int y, Transform targetParent)
+    void setParentNode(int x, int y, Transform targetParent)
     {
         if (board[x, y] != null)
         {
@@ -136,35 +135,19 @@ public class BoardGenerator : MonoBehaviour {
                         Tile boardTile;
                         foreach (char c in i)
                         {
-                            if (c == '@')
+                            GameObject t = null;
+                            if (c == '@') t = Instantiate(obstacle);
+                            if (c == '.') t = Instantiate(path);
+                            if (c == 'T') t = Instantiate(tree);
+                            if (t != null)
                             {
-                                GameObject t = Instantiate(obstacle);
-                                boardTile = t.GetComponent<Tile>();
-                                boardTile.row = rowNum;
-                                boardTile.col = colNum;
-                                boardTile.transform.parent = obstacles.transform;
-                                board[rowNum, colNum] = boardTile;
-                            }
-                            if (c == '.')
-                            {
-                                GameObject t = Instantiate(path);
                                 boardTile = t.GetComponent<Tile>();
                                 boardTile.row = rowNum;
                                 boardTile.col = colNum;
                                 boardTile.transform.parent = transform;
                                 board[rowNum, colNum] = boardTile;
-                            }
-                            if (c == 'T')
-                            {
-                                GameObject t = Instantiate(tree);
-                                boardTile = t.GetComponent<Tile>();
-                                boardTile.row = rowNum;
-                                boardTile.col = colNum;
-                                boardTile.transform.parent = obstacles.transform;
-                                board[rowNum, colNum] = boardTile;
-                                
-                            }
 
+                            }
                             colNum += 1;
                             if (colNum > width) break;
                         }
