@@ -5,15 +5,22 @@ using System.IO;
 using System.Collections.Generic;
 using System.Linq;
 public class BoardGenerator : MonoBehaviour {
-    public int xUnit, yUnit;
     public int width, height;
     public GameObject path, tree, obstacle;
     public GameObject NodePrefab;
     public Tile[,] board;
     public List<Node> walkable;
     public GameObject obstacles;
-    public GameObject center;
+    public GameObject waypointCenter, center;
     public string type;
+    public bool generated = false;
+    public bool waypoints = false;
+    public enum BoardType
+    {
+        TILE,
+        WAYPOINT
+    }
+    public BoardType boardState;
     private void loadFile(string fileName, List<string[]> fileContent)
     {
        
@@ -46,10 +53,24 @@ public class BoardGenerator : MonoBehaviour {
     
 	// Use this for initialization
 	void Start () {
-        xUnit = 2;
-        yUnit = 2;
         parseFile();
-        Tileizer();
+        if (waypoints)
+        {
+            boardState = BoardType.WAYPOINT;
+            if (boardState == BoardType.WAYPOINT)
+            {
+                Waypointizer();
+            }
+        }
+        else
+        {
+            boardState = BoardType.TILE;
+            if (boardState == BoardType.TILE)
+            {
+                Tileizer();
+            }
+        }
+
 
     }
     void Tileizer()
@@ -62,6 +83,7 @@ public class BoardGenerator : MonoBehaviour {
                 par = (GameObject)Instantiate(NodePrefab);
                 Node c = par.GetComponent<Node>();
                 c.tile = new Tile[4];
+
                 if (board[x,y].state == Tile.State.PATH)
                 {
                     setParentNode(x, y, par.transform);
@@ -83,7 +105,42 @@ public class BoardGenerator : MonoBehaviour {
                     c.tile[3] = board[x+1, y+1];
                 }
                 if (par.transform.childCount == 0) Destroy(par);
+                
+            }
+        }
+    }
+    void Waypointizer()
+    {
+        GameObject par;
+        for (int x = 0; x < height - 13; x += 12)
+        {
+            for (int y = 0; y < width - 13; y += 12)
+            {
+                    par = (GameObject)Instantiate(NodePrefab);
+                    Node c = par.GetComponent<Node>();
+                    c.tile = new Tile[4];
 
+                    if (board[x, y].state == Tile.State.PATH)
+                    {
+                        setParentNode(x, y, par.transform);
+                        c.tile[0] = board[x, y];
+                    }
+                    if (board[x + 1, y].state == Tile.State.PATH)
+                    {
+                        setParentNode(x + 1, y, par.transform);
+                        c.tile[1] = board[x + 1, y];
+                    }
+                    if (board[x, y + 1].state == Tile.State.PATH)
+                    {
+                        setParentNode(x, y + 1, par.transform);
+                        c.tile[2] = board[x, y + 1];
+                    }
+                    if (board[x + 1, y + 1].state == Tile.State.PATH)
+                    {
+                        setParentNode(x + 1, y + 1, par.transform);
+                        c.tile[3] = board[x + 1, y + 1];
+                    }
+                    if (par.transform.childCount == 0) Destroy(par);
             }
         }
     }
@@ -157,6 +214,7 @@ public class BoardGenerator : MonoBehaviour {
 
             lineCount += 1;
         }
+        generated = true;
     }
     // Update is called once per frame
     void Update () {

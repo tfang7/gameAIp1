@@ -7,6 +7,8 @@ public class Tile : MonoBehaviour {
     public int col;
     public Vector2 pos;
     public MeshRenderer rend;
+    public Material open;
+    public Material closed;
     public enum State {
         TREE,
         OBSTACLE,
@@ -16,8 +18,11 @@ public class Tile : MonoBehaviour {
 	// Use this for initialization
 	void Start () {
         transform.position = new Vector2(col * 1, row * 1);
-       
         rend = GetComponent<MeshRenderer>();
+    }
+    void OnMouseDown()
+    {
+        Debug.Log("clicked");
     }
     public void Tree()
     {
@@ -32,9 +37,14 @@ public class Tile : MonoBehaviour {
     }
     public void Path()
     {
-        rend.material.color = Color.white;
+        rend.material = closed;
         state = State.PATH;
     }
+    public void checking()
+    {
+        rend.material = open;
+    }
+
     // Update is called once per frame
     void Update () {
         pos = transform.position;
