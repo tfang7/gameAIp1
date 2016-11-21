@@ -16,7 +16,7 @@ public class mouse : MonoBehaviour {
         {
             checkVision();
         }
-        Debug.Log("i'm alive");
+        //Debug.Log("i'm alive");
 
     }
     //controls for toggling obstacle states of tiles
