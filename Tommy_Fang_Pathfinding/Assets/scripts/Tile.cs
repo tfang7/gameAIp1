@@ -9,6 +9,7 @@ public class Tile : MonoBehaviour {
     public MeshRenderer rend;
     public Material open;
     public Material closed;
+    public Material obstacle;
     public enum State {
         TREE,
         OBSTACLE,
@@ -26,13 +27,12 @@ public class Tile : MonoBehaviour {
     }
     public void Tree()
     {
-        rend = GetComponent<MeshRenderer>();
         state = State.TREE;
         rend.material.color = Color.green;
     }
     public void Obstacle()
     {
-        rend.material.color = Color.black;
+        rend.material = obstacle;
         state = State.OBSTACLE;
     }
     public void Path()

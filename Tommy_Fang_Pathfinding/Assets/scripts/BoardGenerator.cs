@@ -13,6 +13,8 @@ public class BoardGenerator : MonoBehaviour {
     public GameObject obstacles;
     public GameObject waypointCenter, center;
     public string type;
+    public Astar pathfinder;
+    public string file;
     public bool generated = false;
     public bool waypoints = false;
     public enum BoardType
@@ -54,19 +56,27 @@ public class BoardGenerator : MonoBehaviour {
 	// Use this for initialization
 	void Start () {
         parseFile();
+        pathfinder = GameObject.Find("A*").GetComponent<Astar>();
         if (waypoints)
         {
             boardState = BoardType.WAYPOINT;
+            pathfinder.waypointsEnabled = true;
             if (boardState == BoardType.WAYPOINT)
             {
+                chunkObstacles();
                 Waypointizer();
             }
+
         }
         else
         {
             boardState = BoardType.TILE;
+            pathfinder.waypointsEnabled = false;
             if (boardState == BoardType.TILE)
             {
+
+
+                //chunkObstacles();
                 Tileizer();
             }
         }
@@ -109,12 +119,47 @@ public class BoardGenerator : MonoBehaviour {
             }
         }
     }
+    void chunkObstacles()
+    {
+        GameObject par;
+        for (int x = 0; x < height-1; x+= 2)
+        {
+            for (int y = 0; y < width-1; y += 2)
+            {
+                par = (GameObject)Instantiate(NodePrefab);
+                Node c = par.GetComponent<Node>();
+                c.tile = new Tile[4];
+                if (board[x, y].state == Tile.State.OBSTACLE || board[x, y].state == Tile.State.TREE)
+                {
+                    setParentNode(x, y, par.transform);
+                    c.tile[0] = board[x, y];
+                }
+                if (board[x+1, y].state == Tile.State.OBSTACLE || board[x+1, y].state == Tile.State.TREE)
+                {
+                    setParentNode(x + 1, y, par.transform);
+                    c.tile[1] = board[x + 1, y];
+                }
+                if (board[x, y+1].state == Tile.State.OBSTACLE || board[x, y+1].state == Tile.State.TREE)
+                {
+                    setParentNode(x, y + 1, par.transform);
+                    c.tile[2] = board[x, y + 1];
+                }
+                if (board[x+1, y+1].state == Tile.State.OBSTACLE || board[x+1, y+1].state == Tile.State.TREE)
+                {
+                    setParentNode(x + 1, y + 1, par.transform);
+                    c.tile[3] = board[x + 1, y + 1];
+                }
+                if (par.transform.childCount == 0) Destroy(par);
+
+            }
+        }
+    }
     void Waypointizer()
     {
         GameObject par;
-        for (int x = 0; x < height - 13; x += 12)
+        for (int x = 0; x < height - 5; x += 5)
         {
-            for (int y = 0; y < width - 13; y += 12)
+            for (int y = 0; y < width - 5; y += 5)
             {
                     par = (GameObject)Instantiate(NodePrefab);
                     Node c = par.GetComponent<Node>();
@@ -140,6 +185,7 @@ public class BoardGenerator : MonoBehaviour {
                         setParentNode(x + 1, y + 1, par.transform);
                         c.tile[3] = board[x + 1, y + 1];
                     }
+
                     if (par.transform.childCount == 0) Destroy(par);
             }
         }
@@ -148,17 +194,28 @@ public class BoardGenerator : MonoBehaviour {
     {
         if (board[x, y] != null)
         {
-            if (board[x, y].state == Tile.State.PATH)
+            if (board[x, y].state == Tile.State.PATH || board[x, y].state == Tile.State.OBSTACLE || board[x,y].state == Tile.State.TREE)
                 if (!board[x, y].transform.parent.CompareTag("tiled"))
                 {
                     board[x, y].transform.SetParent(targetParent.transform);
                 }
+            if (board[x,y].state == Tile.State.TREE)
+            {
+                if (targetParent.GetComponent<BoxCollider2D>() == null)
+                {
+                    BoxCollider2D bc = targetParent.gameObject.AddComponent<BoxCollider2D>();
+                    
+
+                    //  bc.offset = new Vector2(targetParent.transform.position.x, targetParent.transform.position.y);
+                }
+            }
         }
     }
     void parseFile()
     {
         List<string[]> fileText = new List<string[]>();
-        loadFile("assets/text/arena2.map", fileText);
+        string fileLoc = "assets/text/" + file;
+        loadFile(fileLoc, fileText);
         int lineCount = 0;
         // fileText.Reverse();
         foreach (string[] line in fileText)
